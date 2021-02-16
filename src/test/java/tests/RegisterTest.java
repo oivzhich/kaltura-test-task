@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -47,11 +48,12 @@ public class RegisterTest extends TestBase{
                 .assertThat()
                 .statusCode(HttpStatus.SC_OK)
                 .body("result.user", Matchers.hasKey("lastLoginDate"));
-        LocalDateTime today = LocalDateTime.now();
-        LocalDateTime uploadDate = LocalDateTime.ofInstant(
+
+        LocalDateTime today = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+        LocalDateTime lastLoginDate = LocalDateTime.ofInstant(
                 Instant.ofEpochMilli(r.jsonPath().get("result.user.lastLoginDate.toLong()")),
-                TimeZone.getDefault().toZoneId());
-        MatcherAssert.assertThat(today, LocalDateTimeMatchers.sameDay(uploadDate));
+                TimeZone.getDefault().toZoneId()).truncatedTo(ChronoUnit.DAYS);
+        MatcherAssert.assertThat(today, LocalDateTimeMatchers.sameDay(lastLoginDate));
     }
 
     @Test(priority = 3)
